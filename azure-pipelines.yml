@@ -9,13 +9,13 @@ trigger:
 
 jobs:
   # 第一部分：验证前
-  - job: beforeTask
-    displayName: 'before'
-    pool:
-      vmImage: windows-latest
-    steps:
-      - script: 
-        displayName: 'Run a one-line script'
+  # - job: beforeTask
+  #   displayName: 'before'
+  #   pool:
+  #     vmImage: windows-latest
+  #   steps:
+  #     - script: 
+  #       displayName: 'Run a one-line script'
 
   # 第二部分：手动验证（暂停，等待用户确认）步骤
   - job: Validation
