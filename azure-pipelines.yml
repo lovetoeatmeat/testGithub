@@ -6,22 +6,41 @@
 trigger:
 - main
 
-pool:
-  vmImage: ubuntu-latest
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+jobs:
+  # 第一部分：验证前
+  - job: beforeTask
+    displayName: 'before'
+    pool:
+      vmImage: windows-latest
+    steps:
+      - script: 
+        displayName: 'Run a one-line script'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+  # 第二部分：手动验证（暂停，等待用户确认）步骤
+  - job: Validation
+    displayName: Wait for external validation
+    pool: server
+    timeoutInMinutes: 360 # job times out in 360 mins
+    steps:
+    - task: ManualValidation@1
+      timeoutInMinutes: 60 # task times out in 60 mins
+      inputs:
+        notifyUsers: 
+        instructions: 'Please validate the build configuration and resume'
+        onTimeout: 'resume'
+    
+    
 
-- task: PowerShell@2
-  inputs:
-    targetType: 'inline'
-    script: |
-      # Write your PowerShell commands here.
-      
-      Write-Host "Hello World"
+  # 第三部分：验证后
+  - job: AfterTask
+    displayName: 'Continue Execution After Approval'
+    dependsOn: 
+      - Validation  # 显式指定依赖于 Validation
+    pool:
+      vmImage: windows-latest  # 继续使用构建代理
+    steps: 
+      - script: |
+          echo Add other tasks to build, test, and deploy your project.
+          echo See https://aka.ms/yaml
+        displayName: 'Run a multi-line script'
